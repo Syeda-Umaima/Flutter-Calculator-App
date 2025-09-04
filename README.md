@@ -14,6 +14,12 @@ Built with clean UI, context-aware operations (like `%`), and a persistent histo
 ---
 
 ## 📸 Screenshots  
-![Ordinary Mode](screenshots/ordinary.PNG)
-![Scientific Mode](screenshots/scientific.PNG)
-![History Mode](screenshots/history.PNG)
+
+<p align="center">
+  <img src="screenshots/ordinary.PNG" alt="Ordinary Mode" width="250" height="500"/>
+  <img src="screenshots/scientific.PNG" alt="Scientific Mode" width="250" height="500"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/history.PNG" alt="History Mode" width="250" height="500"/>
+</p>

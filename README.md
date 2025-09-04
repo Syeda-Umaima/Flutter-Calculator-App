@@ -1,21 +1,19 @@
-<<<<<<< HEAD
-# calculator
+# 📱 Flutter Calculator App  
 
-A new Flutter project.
+A sleek and powerful **Flutter-based calculator** with both **basic** and **scientific** modes.  
+Built with clean UI, context-aware operations (like `%`), and a persistent history feature.  
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## ✨ Features  
+- 🔢 Basic & Scientific modes  
+- 🧮 Context-aware % operator  
+- 🕒 History tab with Shared Preferences  
+- 🎨 Clean tabbed design  
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
-# Flutter-Calculator-App
-A sleek Flutter-based calculator app with ordinary and scientific modes, featuring smart operator handling (like context-aware %), history persistence via shared preferences, and a clean tabbed interface. Perfect for learning mobile dev—clone, run, and enhance!
->>>>>>> 5c8f65a5afc94bba6d4f186ba418c1918e89753a
+## 📸 Screenshots  
+![Ordinary Mode](screenshots/ordinary.png)
+![Scientific Mode](screenshots/scientific.png)
+![History Mode](screenshots/history.png)

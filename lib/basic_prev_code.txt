@@ -1,0 +1,360 @@
+import 'package:flutter/material.dart';
+
+class basic extends StatefulWidget {
+  const basic({Key? key}) : super(key: key);
+
+  @override
+  State<basic> createState() => _basicState();
+}
+
+class _basicState extends State<basic> {
+  // var num = '';
+  // var result;
+  var expression="";
+  var result = ""; 
+
+  buildbutton(txt, color, [txtcolor = Colors.white]) {
+    return Padding(
+      padding: EdgeInsets.all(0),
+      child: ElevatedButton(
+        onPressed: () {
+          if (txt == "C") {
+            setState(() {
+              expression = '';
+            });
+          }
+          else if (txt == "DEL") {
+            if (expression
+                .isNotEmpty) //to avoid error if num is Empty because substring(0, -1) is invalid
+            {
+              setState(() {
+                expression = expression.substring(
+                  0,
+                  expression.length - 1,
+                ); //start from index 0 and ends BEFORE length-1
+              });
+            }
+          }
+          else if (txt == '+/-') {
+  if (expression.isEmpty) return;
+
+  // Extract last number (with decimals if any)
+  var lastNum = '';
+  for (int i = expression.length - 1; i >= 0; i--) {
+    if (RegExp(r'[0-9.]').hasMatch(expression[i])) {
+      lastNum = expression[i] + lastNum;
+    } else {
+      break;
+    }
+  }
+
+  if (lastNum.isEmpty) return;
+
+  int startIndex = expression.length - lastNum.length;
+
+  // Check what comes before the number
+  if (startIndex > 0) {
+    String before = expression[startIndex - 1];
+    if (before == "+") {
+      // Change + to -
+      setState(() {
+        expression =
+            "${expression.substring(0, startIndex - 1)}-$lastNum";
+      });
+    } else if (before == "-") {
+      // Change - to +
+      setState(() {
+        // Avoid leading '+' at very start
+        if (startIndex - 1 == 0) {
+          expression = "$lastNum${expression.substring(startIndex + lastNum.length)}";
+        } else {
+          expression =
+              "${expression.substring(0, startIndex - 1)}+$lastNum";
+        }
+      });
+    } else {
+      // Replace number with its negated value
+      double toggled = -double.parse(lastNum);
+      setState(() {
+        expression =
+            expression.substring(0, startIndex) + toggled.toString();
+      });
+    }
+  } else {
+    // Case: number is at start
+    double toggled = -double.parse(lastNum);
+    setState(() {
+      expression = toggled.toString();
+    });
+  }
+}
+
+          else if (txt == "=") {
+            //TOKENIZING
+
+            List<String> tokens = [];
+            String number = '';
+
+            for (int i = 0; i < expression.length; i++) {
+              if (expression[i] == '+' ||
+                  (expression[i] == '-' &&
+                      i != 0 &&
+                      expression[i - 1] != '+' &&
+                      expression[i - 1] != 'x' &&
+                      expression[i - 1] != '\u00F7' &&
+                      expression[i - 1] != '-') ||
+                  expression[i] == 'x' ||
+                  expression[i] == '\u00F7'||expression[i] == '%') {
+                tokens.add(number); //push the full number in list
+                tokens.add(expression[i]); //push the operator
+                number = ""; //clear the number, for building another number
+              } else {
+                number += expression[i]; //building the number
+              }
+            }
+            tokens.add(
+              number,
+            ); //after loop add the last number as it won't be followed by any operator
+
+            //Loop through tokens to solve the expression ( * and /)
+            int i = 0;
+            while (i < tokens.length) {
+              //Handle * and / first
+              if (tokens[i] == 'x') {
+                double? num1 = double.tryParse(tokens[i - 1]);
+                double? num2 = double.tryParse(tokens[i + 1]);
+                result = (num1! * num2!).toString();
+
+                // Updates the token List
+                tokens[i - 1] = result.toString();
+                tokens.removeAt(i); // removes the operator
+                tokens.removeAt(
+                  i,
+                ); // removes the number after (shifts left after first remove)
+                continue; // don’t increment, check same index again
+              }
+
+              if (tokens[i] == '\u00F7') {
+                double? num1 = double.tryParse(tokens[i - 1]);
+                double? num2 = double.tryParse(tokens[i + 1]);
+                if (num2 == 0) {
+                  result = "ERROR";
+                  expression = "";
+                  break;
+                } else {
+                  result = (num1! / num2!) .toString();
+                }
+
+                // Updates the token List
+                tokens[i - 1] = result.toString();
+                tokens.removeAt(i); // removes the operator
+                tokens.removeAt(
+                  i,
+                ); // removes the number after (shifts left after first remove)
+                continue; // don’t increment, check same index again
+              }
+
+              if (tokens[i] == '%') {
+                double? num1 = double.tryParse(tokens[i - 1]);
+                double? num2 = double.tryParse(tokens[i + 1]);
+                if (num2 == 0) {
+                  result = "ERROR";
+                  break;
+                } else {
+                  result = (num1! % num2!) .toString();
+                }
+
+                // Updates the token List
+                tokens[i - 1] = result.toString();
+                tokens.removeAt(i); // removes the operator
+                tokens.removeAt(
+                  i,
+                ); // removes the number after (shifts left after first remove)
+                continue; // don’t increment, check same index again
+              }
+              i++;
+            }
+
+            //Loop through tokens to solve the expression ( + and -)
+            int j = 0;
+            while (j < tokens.length) {
+              //Handle + and - now
+              if (tokens[j] == '+') {
+                double? num1 = double.tryParse(tokens[j - 1]);
+                double? num2 = double.tryParse(tokens[j + 1]);
+                result = (num1! + num2!) .toString();
+
+                // Updates the token List
+                tokens[j - 1] = result.toString();
+                tokens.removeAt(j); // removes the operator
+                tokens.removeAt(
+                  j,
+                ); // removes the number after (shifts left after first remove)
+                continue; // don’t increment, check same index again
+              }
+
+              if (tokens[j] == '-') {
+                double? num1 = double.tryParse(tokens[j - 1]);
+                double? num2 = double.tryParse(tokens[j + 1]);
+                result = (num1! - num2!) .toString();
+
+                // Updates the token List
+                tokens[j - 1] = result.toString();
+                tokens.removeAt(j); // removes the operator
+                tokens.removeAt(
+                  j,
+                ); // removes the number after (shifts left after first remove)
+                continue; // don’t increment, check same index again
+              }
+              j++;
+            }
+            setState(() {
+              result = result.toString();
+            });
+          }
+          else{
+            setState(() {
+    if (result.isNotEmpty) {
+      expression = ""; 
+      result = "";
+    }
+    expression += txt;
+  });
+          }
+
+          // To handle single operators
+          // if (txt == "=") {
+          //   List<String> add_parts = num.split('+');
+          //   List<String> sub_parts = num.split('-');
+          //   List<String> mul_parts = num.split('x');
+          //   List<String> div_parts = num.split('/');
+
+          //   if (add_parts.length == 2) {
+          //     int? num1 = int.tryParse(add_parts[0]);
+          //     int? num2 = int.tryParse(add_parts[1]);
+
+          //     result = (num1! + num2!);
+          //   }
+
+          //   if (sub_parts.length == 2) {
+          //     int? num1 = int.tryParse(sub_parts[0]);
+          //     int? num2 = int.tryParse(sub_parts[1]);
+
+          //     result = (num1! - num2!);
+          //   }
+
+          //   if (mul_parts.length == 2) {
+          //     int? num1 = int.tryParse(mul_parts[0]);
+          //     int? num2 = int.tryParse(mul_parts[1]);
+
+          //     result = (num1! * num2!);
+          //   }
+
+          //   if (div_parts.length == 2) {
+          //     double? num1 = double.tryParse(div_parts[0]);
+          //     double? num2 = double.tryParse(div_parts[1]);
+
+          //     result = (num1! / num2!);
+          //   }
+
+          //   setState(() {
+          //     num = result.toString();
+          //   });
+          // }
+        },
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.all(color),
+          fixedSize: WidgetStateProperty.all(Size(20, 15)),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(45)),
+          ),
+        ),
+        child: Text(
+          txt,
+          softWrap: false,
+          overflow: TextOverflow.visible,
+          style: TextStyle(
+            color: txtcolor,
+            fontWeight: FontWeight.bold,
+            fontSize: 17,
+          ),
+        ),
+      ),
+    );
+  }
+dispText(){
+  if(result!=""){
+    return Column(
+      children: [
+        Text("$expression", style: TextStyle(color: const Color.fromARGB(255, 72, 59, 59), fontSize: 20, fontWeight: FontWeight.bold),),
+        SizedBox(height: 10,),
+        Text("$result", style: TextStyle(color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),)
+      ],
+    );
+  }
+  else{
+    return Text(
+              "$expression",
+              style: TextStyle(
+                color: const Color.fromARGB(255, 0, 0, 0),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            );
+  }
+}
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        //grey screen
+        Container(
+          width: double.infinity,
+          height: 130,
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: EdgeInsets.only(top: 30, right: 30),
+            child: dispText()
+          ),
+        ),
+        Flexible(
+          child: Container(
+            color: Colors.black,
+            child: GridView.count(
+              crossAxisCount: 4,
+              mainAxisSpacing: 3, // vertical spacing between buttons
+              crossAxisSpacing: 3, // horizontal spacing between buttons
+              children: [
+                //First Row
+                buildbutton("C", Color.fromARGB(255, 152, 24, 71)),
+                buildbutton("DEL", Color.fromARGB(255, 152, 24, 71)),
+                buildbutton("%", Color.fromARGB(255, 152, 24, 71)),
+                buildbutton("\u00F7", Color.fromARGB(255, 251, 170, 8)),
+                //Second Row
+                buildbutton("7", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("8", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("9", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("x", Color.fromARGB(255, 251, 170, 8)),
+                //Third Row
+                buildbutton("4", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("5", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("6", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("-", Color.fromARGB(255, 251, 170, 8)),
+                //Fourth Row
+                buildbutton("1", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("2", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("3", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("+", Color.fromARGB(255, 251, 170, 8)),
+                //Fifth Row
+                buildbutton("+/-", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("0", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton(".", Color.fromARGB(255, 190, 138, 157)),
+                buildbutton("=", Color.fromARGB(255, 251, 170, 8)),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
